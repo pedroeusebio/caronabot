@@ -1,0 +1,53 @@
+{
+  "name": "caronabot",
+  "version": "1.0.0",
+  "description": "Messenger Chatbot for carpool to the university",
+  "main": ".#app.js",
+  "scripts": {
+    "start": "node build/server.js",
+    "build": "babel src -d build",
+    "dev": "nodemon --exec babel-node src/server.js",
+    "test": "test",
+    "postinstall": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pedroseubio/caronabot.git"
+  },
+  "keywords": [
+    "carona",
+    "bot",
+    "messenger",
+    "fundao"
+  ],
+  "author": "Pedro Eusébio",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pedroseubio/caronabot/issues"
+  },
+  "homepage": "https://github.com/pedroseubio/caronabot#readme",
+  "dependencies": {
+    "bluebird": "^3.5.0",
+    "claudia-bot-builder": "^2.15.0",
+    "dotenv": "^2.0.0",
+    "huh": "^2.0.1",
+    "koa": "^2.2.0",
+    "koa-body-parser": "^1.1.2",
+    "koa-bodyparser": "^4.2.0",
+    "koa-convert": "^1.2.0",
+    "koa-cors": "0.0.16",
+    "koa-router": "^7.2.0",
+    "request": "^2.81.0",
+    "request-promise": "^4.2.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.9.0",
+    "babel-core": "^6.9.1",
+    "babel-plugin-transform-async-to-generator": "^6.8.0",
+    "babel-plugin-transform-async-to-module-method": "^6.8.0",
+    "babel-plugin-transform-runtime": "^6.9.0",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-stage-2": "^6.22.0",
+    "nodemon": "^1.9.2"
+  }
+}
