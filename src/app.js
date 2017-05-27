@@ -7,9 +7,9 @@ const headers = {
 
 async function messengerResponse(content, recipient_id, url) {
   const options = {
-    url: url,
-    method: 'POST',
-    headers: headers,
+    url : url,
+    method : 'POST',
+    headers : headers,
     json: {
       recipient: {
         id: recipient_id
@@ -17,10 +17,12 @@ async function messengerResponse(content, recipient_id, url) {
       message: content
     }
   };
-  console.log(url);
   return await rp(options)
     .then((response) => response)
     .catch((err) => err);
+}
+
+async function facebookSearch(recipient_id) {
 }
 
 const api = {
@@ -28,4 +30,5 @@ const api = {
 };
 
 
-export default api;
+module.exports = api;
+
