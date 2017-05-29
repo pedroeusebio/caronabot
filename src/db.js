@@ -8,7 +8,7 @@ mongoose.Promise = bluebird;
 
 const conString = `${process.env.MONGO_USER}:${process.env.MONGO_PASS}@${process.env.MONGO_URL}`;
 
-mongoose.connect( conString|| '127.0.0.1:27017/motus');
+mongoose.connect(process.env.NODE_ENV == 'production'?  conString : '127.0.0.1:27017/caronabot');
 
 const db = mongoose.connection;
 

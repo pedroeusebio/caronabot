@@ -4,7 +4,7 @@
   "description": "Messenger Chatbot for carpool to the university",
   "main": ".#app.js",
   "scripts": {
-    "start": "node build/server.js",
+    "start": "NODE_ENV=production node build/server.js",
     "build": "babel src -d build",
     "dev": "nodemon --exec babel-node src/server.js",
     "test": "test",
