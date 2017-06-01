@@ -9,26 +9,38 @@ const url = `https://graph.facebook.com/v2.9/me/messages?access_token=${process.
 
 
 async function get_or_create(sender) {
-    const conversation = await Conversation
-          .findOne({recipient_id : sender})
-          .populate('user_id')
-          .then((doc) => {
-              return doc;
-          })
-          .catch(err => err);
-    if(!conversation) {
-        const newConv = await new Conversation({
-            recipient_id: sender,
-            state: 'initial'
-        });
-        const chat = await newConv
-            .save()
-            .then(doc => doc);
-        console.log(chat);
-        return chat;
-    } else {
-        return conversation;
-    }
+  const conversation = await Conversation
+        .findOne({recipient_id : sender})
+        .populate('user_id')
+        .then((doc) => {
+          return doc;
+        })
+        .catch(err => err);
+  if(!conversation) {
+    const user = await app.get_user(sender);
+    const newUser = await new User({
+      id: sender,
+      firstName: user.first_name,
+      lastName : user.last_name,
+      profilePic : user.profile_pic,
+      locale: user.locale,
+      timezone: user.timezone,
+      gender: user.gender
+    })
+          .save ()
+          .then(doc => doc);
+    const newConv = await new Conversation({
+      recipient_id: sender,
+      user_id : newUser._id,
+      state: 'welcome'
+    });
+    const chat = await newConv
+          .save()
+          .then(doc => doc);
+    return chat;
+  } else {
+    return conversation;
+  }
 }
 
 async function response(message, sender, conversation) {
