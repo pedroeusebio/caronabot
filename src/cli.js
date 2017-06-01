@@ -1,6 +1,5 @@
 const readline = require('readline');
-const path = require('path');
-const conversation = require(path.resolve(__dirname,'conversation.js'));
+import conversation from './conversation';
 
 const sender = 1421946534519946;
 
