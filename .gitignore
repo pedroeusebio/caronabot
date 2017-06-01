@@ -56,6 +56,9 @@ typings/
 
 # dotenv environment variables file
 .env
+.env.production
 
 #build folder
 build/
+#tern files
+.tern-port
