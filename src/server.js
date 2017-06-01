@@ -11,7 +11,6 @@ import botBuilder from 'claudia-bot-builder';
 import api from './app';
 import conversation from './conversation';
 
-const fbTemplate = botBuilder.fbTemplate;
 
 const route = koaRouter()
       .prefix("/")
@@ -31,6 +30,9 @@ const route = koaRouter()
             let chat = await conversation.get_or_create(sender);
             if(messaging.message && messaging.message.text) {
               conversation.response(messaging.message.text, sender, chat);
+            }
+            if(messaging.postback) {
+              conversation.response(messaging.postback.payload, sender, chat);
             }
           });
         });
