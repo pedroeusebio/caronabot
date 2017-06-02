@@ -48,11 +48,8 @@ async function facebookSearch(recipient_id) {
     .catch(err => err);
 }
 
-const api = {
+export default {
   response: messengerResponse,
   multipleResponse: multipleResponse,
   get_user: facebookSearch
 };
-
-
-export default api;
