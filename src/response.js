@@ -1,6 +1,6 @@
 import rp from 'request-promise';
 import R from 'ramda';
-const url = `https://graph.facebook.com/v2.9/me/messages?access_token=${process.env.PAGE_TOKEN}`;
+import config from './config';
 
 
 const headers = {
@@ -9,6 +9,7 @@ const headers = {
 
 
 async function messengerResponse(content, recipient_id) {
+  const url = `https://graph.facebook.com/v2.9/me/messages?access_token=${process.env.PAGE_TOKEN}`;
   const options = {
     url : url,
     method : 'POST',
@@ -48,8 +49,21 @@ async function facebookSearch(recipient_id) {
     .catch(err => err);
 }
 
+async function updateConfigs() {
+  const url = `https://graph.facebook.com/v2.9/me/messenger_profile?access_token=${process.env.PAGE_TOKEN}`;
+  const options = {
+    url: url,
+    method: 'POST',
+    json: config
+  };
+  return await rp(options)
+    .then(response => response)
+    .catch(err => err);
+}
+
 export default {
   response: messengerResponse,
   multipleResponse: multipleResponse,
-  get_user: facebookSearch
+  get_user: facebookSearch,
+  updateConfig: updateConfigs
 };
