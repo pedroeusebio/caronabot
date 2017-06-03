@@ -5,7 +5,7 @@ const fbTemplate = botBuilder.fbTemplate;
 
 function textResponse(text, quickReply = []) {
   let msg = new fbTemplate.Text(text);
-  R.forEach((el) => msg.addQuickReply(el,el), quickReply);
+  R.forEach((el) => msg.addQuickReply(el.label,el.value), quickReply);
   return msg.get();
 }
 

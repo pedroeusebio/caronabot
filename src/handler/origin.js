@@ -2,11 +2,11 @@ import api from '../api';
 import FuzzySet from 'fuzzyset';
 
 const originOptions = [
-  'barra/recreio',
-  'caxias',
-  'freguesia/jacarepagua',
-  'ilha do governador',
-  'meier/cachambi'
+  {label: 'barra/recreio', value: 'barra/recreio'},
+  {label: 'caxias', value: 'caxias'},
+  {label: 'freguesia/jacarepagua', value: 'freguesia/jacarepagua'},
+  {label: 'ilha do governador', value: 'ilha do governador'},
+  {label: 'meier/cachambi', value: 'meier/cachambi'},
 ];
 
 const origins = {
