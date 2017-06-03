@@ -1,8 +1,11 @@
 import api from '../api';
+import origin from './origin';
 
-function welcome(firstName, lastName) {
-  return api
-    .textResponse(`Olá ${firstName} ${lastName}! Espero poder te ajudar a encontrar muitas caronas`);
+function welcome(user, conversation) {
+  return [
+    api.textResponse(`Olá ${user.firstName} ${user.lastName}! Espero poder te ajudar a encontrar muitas caronas`),
+    origin.getOrigin(conversation)
+  ];
 }
 
 

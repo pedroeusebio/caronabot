@@ -1,5 +1,7 @@
 import api from '../api';
 import FuzzySet from 'fuzzyset';
+import {goto} from  '../state';
+import destiny from './destiny';
 
 const originOptions = [
   {label: 'barra/recreio', value: 'barra/recreio'},
@@ -8,7 +10,7 @@ const originOptions = [
   {label: 'ilha do governador', value: 'ilha do governador'},
   {label: 'meier/cachambi', value: 'meier/cachambi'},
 ];
-
+const origins = {
   'barra' : 'barra/recreio',
   'recreio': 'barra/recreio',
   'barra/recreio': 'barra/recreio',
@@ -34,32 +36,41 @@ function validateOrigin(message) {
   }
 }
 
-function getOrigin() {
+function getOrigin(conversation) {
+  goto(conversation._id, 'get_origin', conversation._doc);
   return api
     .textResponse('Para começar, preciso saber onde você mora ou costuma pegar as caronas. Aqui vai uma lista de opções:',
                   originOptions);
 }
 
-function setOrigin() {
+function setOrigin(conversation) {
+  goto(conversation._id, 'set_origin', conversation._doc);
   return api
     .textResponse('Para qual origem você deseja mudar ? Aqui vai uma lista de opções :',
                   originOptions);
 }
 
-function originHandler(location, message, state) {
+function originHandler(message, conversation) {
+  const location = validateOrigin(message);
   if(location) {
-    if(state == 'get_origin') {
-      return api
-        .textResponse(`Sério ?! Minha ex mora la no ${location}. Se você precisar trocar o local de origem é só escrever ORIGEM`);
+    const newConv = {...conversation._doc, origin: location};
+    if(conversation.state == 'get_origin') {
+      return [
+        api.textResponse(`Sério ?! Minha ex mora la no ${location}. Se você precisar trocar o local de origem é só escrever ORIGEM`),
+              destiny.getDestiny(newConv)
+      ];
     }
-    if(state == 'set_origin') {
-      return api
-        .textResponse(`Beleza ! Sua nova origem é ${location}`);
+    if(conversation.state == 'set_origin') {
+      goto(conversation._id, 'default', newConv);
+      return [
+        api.textResponse(`Beleza ! Sua nova origem é ${location}`)
+      ];
     }
   } else {
-    return api
-      .textResponse(`Não possuimos disponibilidade para ${message}. Tente algum desses lugares:`,
-                    originOptions);
+    return [
+      api.textResponse(`Não possuimos disponibilidade para ${message}. Tente algum desses lugares:`,
+                       originOptions)
+    ];
   }
 }
 

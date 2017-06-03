@@ -1,5 +1,6 @@
 import api from '../api';
 import FuzzySet from 'fuzzyset';
+import { goto } from '../state';
 
 const destinyOptions = [{label: 'UFRJ - Fundão', value: 'FUNDAO'}];
 const destinies = {
@@ -7,18 +8,6 @@ const destinies = {
   'ufrj': 'FUNDAO',
   'UFRJ - fundao' : 'FUNDAO'
 };
-
-function getDestiny() {
-  return api
-    .buttonResponse('Agora precisamos saber onde costuma ser o seu destino.Em breve iremos adicionar mais opcões',
-                  destinyOptions);
-}
-
-function setDestiny() {
-  return api
-    .buttonResponse('Para qual destino você deseja mudar ? Aqui vai uma lista de opções :',
-                  destinyOptions);
-}
 
 function validateDestiny(message) {
   const validateMsg = message.toLowerCase();
@@ -32,12 +21,29 @@ function validateDestiny(message) {
   }
 }
 
-function destinyHandler(location, message, state) {
+function getDestiny(conversation) {
+  goto(conversation._id,  'get_destiny', conversation);
+  return api
+    .buttonResponse('Agora precisamos saber onde costuma ser o seu destino.Em breve iremos adicionar mais opcões',
+                  destinyOptions);
+}
+
+function setDestiny(conversation) {
+  goto(conversation._id, 'set_destiny', conversation._doc);
+  return api
+    .buttonResponse('Para qual destino você deseja mudar ? Aqui vai uma lista de opções :',
+                  destinyOptions);
+}
+
+function destinyHandler(message, conversation) {
+  const location = validateDestiny(message);
   if(location) {
-    if(state == 'get_destiny') {
+    const newConv = {...conversation._doc, destiny: location};
+    goto(conversation._id, 'default', newConv);
+    if(conversation.state == 'get_destiny') {
       return api.textResponse(`Ótimo! Agora você pode oferecer ou pegar carona sempre que precisar!`);
     }
-    if(state == 'set_destiny') {
+    if(conversation.state == 'set_destiny') {
       return api.textResponse(`Show ! seu destino agora é ${location}`);
     }
   } else {

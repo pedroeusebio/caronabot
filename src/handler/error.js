@@ -1,4 +1,5 @@
 import api from '../api';
+import { goto } from '../state';
 
 
 const stateToAction = {
@@ -29,14 +30,15 @@ function error(firstName) {
     .textResponse(`Desculpe ${firstName}, não entendi o que você disse :(`);
 }
 
-function errorHandler(state, payload) {
+function errorHandler(payload, conversation) {
+  goto(conversation._id, 'default', conversation._doc);
   return api
-    .buttonResponse(`você está executando a operacão de ${stateToAction[state]}. Gostaria de Cancelar e ir para ${payloadToAction[payload]} ?`,
-                    [{label: 'Não', value: stateToPayload[state]}, {label: 'Sim', value: payload}]);
+    .buttonResponse(`você está executando a operacão de ${stateToAction[conversation.state]}. Gostaria de Cancelar e ir para ${payloadToAction[payload]} ?`,
+                    [{label: 'Não', value: stateToPayload[conversation.state]}, {label: 'Sim', value: payload}]);
 }
 
 
 export default {
   error,
-  errorHandler,
+  errorHandler
 };

@@ -46,51 +46,17 @@ async function handlerMessage(message, sender, conversation) {
   const user = await User.findOne({id: sender}).then(doc => doc).catch(err=> err);
   let msg = [];
   if(conversation.state == "welcome"){
-    msg.push(handler.welcome(user.firstName, user.lastName));
-    msg.push(handler.getOrigin());
-    res.multipleResponse(msg ,sender);
-    return await Conversation
-      .findOneAndUpdate({_id: conversation._id},{...conversation._doc, state: 'get_origin'},{new:true})
-      .then(doc => doc)
-      .catch(err => err);
-  }
-  if(conversation.state == 'get_origin') {
-    const location = handler.validateOrigin(message);
-    msg.push(handler.originHandler(location, message, conversation.state));
-    if(location) {
-      msg.push(handler.getDestiny());
-      const newConv = {...conversation._doc, origin: location, state: 'get_destiny'};
-      await Conversation
-        .findOneAndUpdate({_id: conversation._id}, newConv, {new:true})
-        .then(doc => doc)
-        .catch(err => err);
-    }
+    msg = handler.welcome(user, conversation);
     return res.multipleResponse(msg ,sender);
   }
 
-  if(conversation.state == 'set_origin') {
-    const location = handler.validateOrigin(message);
-    msg.push(handler.originHandler(location, message, conversation.state));
-    if(location) {
-      const newConv = {...conversation._doc, origin: location, state: 'default'};
-      await Conversation
-        .findOneAndUpdate({_id: conversation._id}, newConv, {new:true})
-        .then(doc => doc)
-        .catch(err => err);
-    }
+  if(conversation.state == 'get_origin' || conversation.state == 'set_origin') {
+    msg = handler.originHandler(message, conversation);
     return res.multipleResponse(msg ,sender);
   }
 
   if(conversation.state == 'get_destiny'|| conversation.state == 'set_destiny') {
-    const location = handler.validateDestiny(message);
-    msg.push(handler.destinyHandler(location, message, conversation.state));
-    if(location) {
-      const newConv = {...conversation._doc, destiny: location, state: 'default'};
-      await Conversation
-        .findOneAndUpdate({_id: conversation._id}, newConv, {new:true})
-        .then(doc => doc)
-        .catch(err => err);
-    }
+    msg.push(handler.destinyHandler(message, conversation));
     return res.multipleResponse(msg, sender);
   }
 
@@ -104,37 +70,17 @@ async function handlerPostback(payload, sender, conversation) {
   let msg = [];
   if(conversation.state == 'default') {
     if(payload == "CHANGE_ORIGIN_PAYLOAD") {
-      msg.push(handler.setOrigin());
-      await Conversation
-        .findOneAndUpdate({_id: conversation._id}, {...conversation._doc, state: 'set_origin'}, {new:true})
-        .then(doc => doc)
-        .catch(err => err);
+      msg.push(handler.setOrigin(conversation));
     } else if( payload == 'CHANGE_DESTINY_PAYLOAD') {
-      msg.push(handler.setDestiny());
-      await Conversation
-        .findOneAndUpdate({_id: conversation._id}, {...conversation._doc, state: 'set_destiny'}, {new:true})
-        .then(doc => doc)
-        .catch(err => err);
+      msg.push(handler.setDestiny(conversation));
     }
     return res.multipleResponse(msg, sender);
   } else {
     if(conversation.state == 'get_destiny' || conversation.state == 'set_destiny') {
-      const location = handler.validateDestiny(payload);
-      msg.push(handler.destinyHandler(location, payload, conversation.state));
-      if(location) {
-        const newConv = {...conversation._doc, destiny: location, state: 'default'};
-        await Conversation
-          .findOneAndUpdate({_id: conversation._id}, newConv, {new:true})
-          .then(doc => doc)
-          .catch(err => err);
-      }
+      msg.push(handler.destinyHandler(payload, conversation));
       return res.multipleResponse(msg, sender);
     } else {
-      msg.push(handler.errorHandler(conversation.state, payload));
-      await Conversation
-        .findOneAndUpdate({_id: conversation._id}, {...conversation._doc, state: 'default'}, {new:true})
-        .then(doc => doc)
-        .catch(err => err);
+      msg.push(handler.errorHandler(payload, conversation));
       return res.multipleResponse(msg, sender);
     }
   }
