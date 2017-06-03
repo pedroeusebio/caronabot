@@ -9,7 +9,6 @@ const originOptions = [
   {label: 'meier/cachambi', value: 'meier/cachambi'},
 ];
 
-const origins = {
   'barra' : 'barra/recreio',
   'recreio': 'barra/recreio',
   'barra/recreio': 'barra/recreio',
@@ -37,7 +36,13 @@ function validateOrigin(message) {
 
 function getOrigin() {
   return api
-    .textResponse('Para comecar, preciso saber onde voce mora ou costuma pegar as caronas. Aqui vai uma lista de opcoes:',
+    .textResponse('Para começar, preciso saber onde você mora ou costuma pegar as caronas. Aqui vai uma lista de opções:',
+                  originOptions);
+}
+
+function setOrigin() {
+  return api
+    .textResponse('Para qual origem você deseja mudar ? Aqui vai uma lista de opções :',
                   originOptions);
 }
 
@@ -46,6 +51,10 @@ function originHandler(location, message, state) {
     if(state == 'get_origin') {
       return api
         .textResponse(`Sério ?! Minha ex mora la no ${location}. Se você precisar trocar o local de origem é só escrever ORIGEM`);
+    }
+    if(state == 'set_origin') {
+      return api
+        .textResponse(`Beleza ! Sua nova origem é ${location}`);
     }
   } else {
     return api
@@ -57,6 +66,7 @@ function originHandler(location, message, state) {
 
 export default {
   getOrigin,
+  setOrigin,
   validateOrigin,
   originHandler
 };

@@ -14,6 +14,11 @@ function getDestiny() {
                   destinyOptions);
 }
 
+function setDestiny() {
+  return api
+    .buttonResponse('Para qual destino você deseja mudar ? Aqui vai uma lista de opções :',
+                  destinyOptions);
+}
 
 function validateDestiny(message) {
   const validateMsg = message.toLowerCase();
@@ -30,7 +35,10 @@ function validateDestiny(message) {
 function destinyHandler(location, message, state) {
   if(location) {
     if(state == 'get_destiny') {
-      return api.textResponse(`sua resposta foi ${location}`);
+      return api.textResponse(`Ótimo! Agora você pode oferecer ou pegar carona sempre que precisar!`);
+    }
+    if(state == 'set_destiny') {
+      return api.textResponse(`Show ! seu destino agora é ${location}`);
     }
   } else {
     return api.buttonResponse(`Não possuimos disponibilidade para ${message}. Tente algum desses lugares:`,
@@ -41,6 +49,7 @@ function destinyHandler(location, message, state) {
 
 export default {
   getDestiny,
+  setDestiny,
   validateDestiny,
   destinyHandler,
 };

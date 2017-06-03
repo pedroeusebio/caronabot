@@ -42,7 +42,7 @@ async function get_or_create(sender) {
   }
 }
 
-async function response(message, sender, conversation) {
+async function handlerMessage(message, sender, conversation) {
   const user = await User.findOne({id: sender}).then(doc => doc).catch(err=> err);
   let msg = [];
   if(conversation.state == "welcome"){
@@ -68,10 +68,22 @@ async function response(message, sender, conversation) {
     return res.multipleResponse(msg ,sender);
   }
 
-  if(conversation.state == 'get_destiny') {
+  if(conversation.state == 'set_origin') {
+    const location = handler.validateOrigin(message);
+    msg.push(handler.originHandler(location, message, conversation.state));
+    if(location) {
+      const newConv = {...conversation._doc, origin: location, state: 'default'};
+      await Conversation
+        .findOneAndUpdate({_id: conversation._id}, newConv, {new:true})
+        .then(doc => doc)
+        .catch(err => err);
+    }
+    return res.multipleResponse(msg ,sender);
+  }
+
+  if(conversation.state == 'get_destiny'|| conversation.state == 'set_destiny') {
     const location = handler.validateDestiny(message);
     msg.push(handler.destinyHandler(location, message, conversation.state));
-    console.log(location);
     if(location) {
       const newConv = {...conversation._doc, destiny: location, state: 'default'};
       await Conversation
@@ -79,7 +91,6 @@ async function response(message, sender, conversation) {
         .then(doc => doc)
         .catch(err => err);
     }
-    console.log(msg);
     return res.multipleResponse(msg, sender);
   }
 
@@ -88,8 +99,50 @@ async function response(message, sender, conversation) {
   return 'Success';
 }
 
+async function handlerPostback(payload, sender, conversation) {
+  const user = await User.findOne({id: sender}).then(doc => doc).catch(err=> err);
+  let msg = [];
+  if(conversation.state == 'default') {
+    if(payload == "CHANGE_ORIGIN_PAYLOAD") {
+      msg.push(handler.setOrigin());
+      await Conversation
+        .findOneAndUpdate({_id: conversation._id}, {...conversation._doc, state: 'set_origin'}, {new:true})
+        .then(doc => doc)
+        .catch(err => err);
+    } else if( payload == 'CHANGE_DESTINY_PAYLOAD') {
+      msg.push(handler.setDestiny());
+      await Conversation
+        .findOneAndUpdate({_id: conversation._id}, {...conversation._doc, state: 'set_destiny'}, {new:true})
+        .then(doc => doc)
+        .catch(err => err);
+    }
+    return res.multipleResponse(msg, sender);
+  } else {
+    if(conversation.state == 'get_destiny' || conversation.state == 'set_destiny') {
+      const location = handler.validateDestiny(payload);
+      msg.push(handler.destinyHandler(location, payload, conversation.state));
+      if(location) {
+        const newConv = {...conversation._doc, destiny: location, state: 'default'};
+        await Conversation
+          .findOneAndUpdate({_id: conversation._id}, newConv, {new:true})
+          .then(doc => doc)
+          .catch(err => err);
+      }
+      return res.multipleResponse(msg, sender);
+    } else {
+      msg.push(handler.errorHandler(conversation.state, payload));
+      await Conversation
+        .findOneAndUpdate({_id: conversation._id}, {...conversation._doc, state: 'default'}, {new:true})
+        .then(doc => doc)
+        .catch(err => err);
+      return res.multipleResponse(msg, sender);
+    }
+  }
+}
 
-module.exports = {
-  response,
+
+export default {
+  handlerMessage,
+  handlerPostback,
   get_or_create
 };
