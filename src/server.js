@@ -8,8 +8,8 @@ import cors from 'koa-cors';
 import convert from 'koa-convert';
 import koaRouter from 'koa-router';
 import botBuilder from 'claudia-bot-builder';
-import api from './app';
 import conversation from './conversation';
+import res from './response';
 
 
 const route = koaRouter()
@@ -29,15 +29,18 @@ const route = koaRouter()
             let sender = messaging.sender.id;
             let chat = await conversation.get_or_create(sender);
             if(messaging.message && messaging.message.text) {
-              conversation.response(messaging.message.text, sender, chat);
+              conversation.handlerMessage(messaging.message.text, sender, chat);
             }
             if(messaging.postback) {
-              conversation.response(messaging.postback.payload, sender, chat);
+              conversation.handlerPostback(messaging.postback.payload, sender, chat);
             }
           });
         });
         ctx.body = 200;
         return ;
+      })
+      .get('/update_configs', async (ctx, next) => {
+        ctx.body = await res.updateConfig();
       });
 
 const app = new koa();
